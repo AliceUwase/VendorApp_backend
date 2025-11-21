@@ -1,9 +1,10 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const User = require('./src/models/User');
 const Vendor = require('./src/models/Vendor');
 
 // MongoDB connection string
-const MONGO_URI = 'mongodb+srv://user1:twentyfifth@cluster0.ownupsm.mongodb.net/?appName=Cluster0';
+const mongoUrl = process.env.MONGODB_URL;
 
 mongoose.connect(MONGO_URI)
   .then(() => {

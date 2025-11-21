@@ -1,7 +1,8 @@
+require('dotenv').config();
 const mongoose = require('mongoose');
 const Category = require('./src/models/Category');
 
-const MONGO_URI = 'mongodb+srv://user1:twentyfifth@cluster0.ownupsm.mongodb.net/?appName=Cluster0';
+const mongoUrl = process.env.MONGODB_URL;
 
 //  food vendor categories
 const categories = [
