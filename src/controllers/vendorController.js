@@ -26,7 +26,7 @@ const createVendor = async (req, res) => {
         if (req.user.userType !== 'vendor') {
             return res.status(403).json({
                 sucess: false,
-                message: 'Only vendors can create business profiles'
+                message: 'Only vendors can create business profiles'+req.user
             });
         }
             // check if business name already exists
@@ -169,7 +169,7 @@ const updateVendor = async (req, res) => {
             });
         }
             // check if the logged in user is the owner of the vendor profile
-        if (vendor.ownerId.tostring() !== req.user.id) {
+        if (vendor.ownerId.toString() !== req.user._id.toString()) {
             return res.status(403).json({
                 sucess: false,
                 message: 'You are not authorized to update this vendor profile'
@@ -354,22 +354,25 @@ const getMyVendors = async (req, res) => {
     try {
         // first check if user is a vendor
         if (req.user.userType !== 'vendor') {
-            return req.status(403).json({
+            return res.status(403).json({
                 success: false,
                 message: 'Only vendors can access their business profiles'
             });
         }
 
+        console.log("my vendors before query ")
         // find vendors owned by the logged in user
-        const vendors = await Vendor.find({ ownerId: req.user.id })
-            .sort('-createdAt');
+        const vendors = await Vendor.find({ ownerId: req.user._id }).sort('-createdAt');
 
-            // send response
-            res.status(200).json({
-                success: true,
-                count: vendors.length,
-                data: vendors
-            });
+        console.log("my vendors before query ")
+
+
+        // send response
+        res.status(200).json({
+            success: true,
+            count: vendors.length,
+            data: vendors
+        });
     } catch (error) {
         res.status(500).json({
             success: false,
@@ -378,6 +381,7 @@ const getMyVendors = async (req, res) => {
         });
     }
 };
+
 
 module.exports = {
     createVendor,

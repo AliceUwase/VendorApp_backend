@@ -1,42 +1,87 @@
 const Category = require('../models/Category');
 const Vendor = require('../models/Vendor');
 
-// Cget all  categories
+// get all  categories
 
 const getAllCategories = async (req, res) => {
     try {
         // find all categories
-        const categories = (await Category.find()).toSorted('categoryName');
+        let categories = await Category.find();
+
+        // sort by categoryName
+        categories = categories.toSorted((a, b) =>
+            a.categoryName.localeCompare(b.categoryName)
+        );
 
         // for each category, count vendors under it
-        const categoriesWithVendorCount = await Promise.all(categories.map(async (category) => {
-            const vendorCount = await Vendor.countDocuments({ category: category.categoryName });
+        const categoriesWithVendorCount = await Promise.all(
+            categories.map(async (category) => {
+                const vendorCount = await Vendor.countDocuments({
+                    category: category.categoryName,
+                });
 
-            return {
-                _id: category._id,
-                categoryName: category.categoryName,
-                description: category.description,
-                icon: category.icon,
-                vendorCount: vendorCount,
-                createdAt: category.createdAt
-            };
-        }));
+                return {
+                    _id: category._id,
+                    categoryName: category.categoryName,
+                    description: category.description,
+                    icon: category.icon,
+                    vendorCount: vendorCount,
+                    createdAt: category.createdAt,
+                };
+            })
+        );
 
         // send response
         res.status(200).json({
             success: true,
-            count:categoriesWithCount.length,
-            data: categoriesWithCount
-    });
+            count: categoriesWithVendorCount.length,
+            data: categoriesWithVendorCount,
+        });
 
     } catch (error) {
         res.status(500).json({
             success: false,
-            message:'Error fetching categories',
-            error:error.message
+            message: 'Error fetching categories',
+            error: error.message,
         });
     }
 };
+
+
+// const getAllCategories = async (req, res) => {
+//     try {
+//         // find all categories
+//         const categories = (await Category.find()).toSorted('categoryName');
+
+//         // for each category, count vendors under it
+//         const categoriesWithVendorCount = await Promise.all(categories.map(async (category) => {
+//             const vendorCount = await Vendor.countDocuments({ category: category.categoryName });
+
+//             return {
+//                 _id: category._id,
+//                 categoryName: category.categoryName,
+//                 description: category.description,
+//                 icon: category.icon,
+//                 vendorCount: vendorCount,
+//                 createdAt: category.createdAt
+//             };
+//         }));
+
+//         // send response
+//         res.status(200).json({
+//             success: true,
+//             count:categoriesWithCount.length,
+//             data: categoriesWithCount
+//     });
+
+//     } catch (error) {
+//         res.status(500).json({
+//             success: false,
+//             message:'Error fetching categories',
+//             error:error.message
+//         });
+//     }
+// };
 
 // get single category by ID
 
@@ -86,9 +131,10 @@ const getCategoryById = async (req, res) => {
 
 const getCategoryByName = async (req, res) => {
   try {
-    
+    const { name: categoryName } = req.params;  // FIXED
+
     // find category by name 
-    const category = await Category.findOne({ 
+    const category = await Category.findOne({
       categoryName: { $regex: new RegExp(`^${categoryName}$`, 'i') }
     });
 
@@ -100,8 +146,8 @@ const getCategoryByName = async (req, res) => {
     }
 
     // count vendors
-    const vendorCount = await Vendor.countDocuments({ 
-      category: category.categoryName 
+    const vendorCount = await Vendor.countDocuments({
+      category: category.categoryName
     });
 
     // send response
@@ -121,6 +167,7 @@ const getCategoryByName = async (req, res) => {
     });
   }
 };
+
 
 // get vendors in category
 // gets all vendors in a specific category

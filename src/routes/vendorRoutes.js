@@ -18,11 +18,11 @@ const {
 router.get('/', getAllVendors);
 router.get('/search', searchVendors);
 router.get('/category/:category', getVendorsByCategory);
+router.get('/my-vendors', protect, getMyVendors);
 router.get('/:id', getVendorById);
 
 // PRIVATE ROUTES (require authentication)
 router.post('/', protect, createVendor);
-router.get('/my-vendors', protect, getMyVendors);
 router.put('/:id', protect, updateVendor);
 router.delete('/:id', protect, deleteVendor);
 
