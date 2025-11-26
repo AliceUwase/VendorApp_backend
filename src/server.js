@@ -1,11 +1,11 @@
 const dotenv = require('dotenv');
 dotenv.config();
-
 const config = require('./config/config');
 const app = require('./App.js');
 const mongoose = require('mongoose');
 const currentConfig = config.development;
 const { port, mongoUrl } = currentConfig;
+const cors = require('cors');
 const vendorRoutes = require('./routes/vendorRoutes');
 const authRoutes = require('./routes/authRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
@@ -14,7 +14,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 // Validate MongoDB URL
 if (!mongoUrl || typeof mongoUrl !== 'string') {
   console.error('❌ MONGO URL is not defined. Set MONGODB_URL in .env file');
-  process.exit(1);
+  process.exit(1); 
 }
 
 // Validate port
@@ -22,6 +22,17 @@ if (!port) {
   console.error('❌ PORT is not defined. Set PORT in .env file');
   process.exit(1);
 }
+// CORS configuration
+app.use(cors({
+  origin: [
+    'http://localhost:3000',
+    'https://vendorapp-frontend.netlify.app/'
+        
+  ],
+  credentials: true,                    
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Register routes BEFORE starting the server
 app.use('/api/auth', authRoutes);
