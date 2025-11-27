@@ -17,27 +17,24 @@ const createVendor = async (req, res) => {
         // Validate required fields
         if (!businessName || !description || !category || !address || !city || !phone || !email) {
             return res.status(400).json({
-                sucess: false,
+                success: false,
                 message: 'Please provide all required fields'
             });
         }
 
-        // check if user is a vendor
         if (req.user.userType !== 'vendor') {
             return res.status(403).json({
-                sucess: false,
-                message: 'Only vendors can create business profiles'+req.user
+                success: false,
+                message: 'Only vendors can create business profiles'
             });
         }
-            // check if business name already exists
         const existingVendor = await Vendor.findOne({ businessName });
         if (existingVendor) {
             return res.status(400).json({
-                sucess: false,
-                message: 'Business name alredy exists'
+                success: false,
+                message: 'Business name already exists'
             });
         }
-        // create vendor profile
         const vendor = await Vendor.create({
             ownerId: req.user.id,
             businessName,
@@ -49,24 +46,22 @@ const createVendor = async (req, res) => {
             email
         }); 
 
-        // send response
         res.status(201).json({
-            sucess: true,
+            success: true,
             message: 'Vendor profile created successfully',
             data: vendor
         });
     } catch (error) { 
-        // handles validation errors
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(err => err.message);
             return res.status(400).json({
-                sucess: false,
+                success: false,
                 message: messages.join(', ')
             });
         }
         res.status(500).json({
-            sucess: false,
-            message: 'Error crating vendor profile',
+            success: false,
+            message: 'Error creating vendor profile',
             error: error.message
         });
     }
@@ -138,9 +133,8 @@ const getVendorById = async (req, res) => {
             });
         }   
 
-        // send response
         res.status(200).json({
-            sucess: true,
+            success: true,
             data: vendor
         });
     } catch (error) {
@@ -164,20 +158,17 @@ const updateVendor = async (req, res) => {
         const vendor = await Vendor.findById(req.params.id);
         if (!vendor) {
             return res.status(404).json({
-                sucess: false,
+                success: false,
                 message: 'Vendor not found'
             });
         }
-            // check if the logged in user is the owner of the vendor profile
         if (vendor.ownerId.toString() !== req.user._id.toString()) {
             return res.status(403).json({
-                sucess: false,
+                success: false,
                 message: 'You are not authorized to update this vendor profile'
             });
-
         }
 
-        // check if new business name already exists
         if (req.body.businessName && req.body.businessName !== vendor.businessName) {
             const existingVendor = await Vendor.findOne({ 
                 businessName: req.body.businessName,
@@ -185,36 +176,34 @@ const updateVendor = async (req, res) => {
             });
             if (existingVendor) {
                 return res.status(400).json({
-                    sucess: false,
+                    success: false,
                     message: 'Business name already exists'
                 });
             }
         }
-        // update vendor profile
         const updatedVendor = await Vendor.findByIdAndUpdate(
             req.params.id,
             req.body,
             {
-                new:true, // return the updated document
-                runValidators: true // run model validations
+                new: true,
+                runValidators: true
             });
 
-            // send response
-            res.status(200).json({
-                sucess: true,
-                message: 'Vendor profile updated successfully',
-                data: updatedVendor
-            });
-    } catch (error) { // handle validation errors
+        res.status(200).json({
+            success: true,
+            message: 'Vendor profile updated successfully',
+            data: updatedVendor
+        });
+    } catch (error) {
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(err => err.message);
             return res.status(400).json({
-                sucess: false,
+                success: false,
                 message: messages.join(', ')
             });
         }
         res.status(500).json({
-            sucess: false,
+            success: false,
             message: 'Error updating vendor profile',
             error: error.message
         });
@@ -227,28 +216,25 @@ const deleteVendor = async (req, res) => {
         const vendor = await Vendor.findById(req.params.id);
         if (!vendor) {
             return res.status(404).json({
-                sucess: false,
+                success: false,
                 message: 'Vendor not found'
             });
         }
-        // check if the logged in user is the owner of the vendor profile
         if (vendor.ownerId.toString() !== req.user.id) {
             return res.status(403).json({
-                sucess: false,
+                success: false,
                 message: 'You are not authorized to delete this vendor profile'
             });
         }
-        // delete vendor profile
         await Vendor.findByIdAndDelete(req.params.id);
 
-        // send response
         res.status(200).json({
-            sucess: true,
+            success: true,
             message: 'Vendor profile deleted successfully'
         });
     } catch (error) {
         res.status(500).json({
-            sucess: false,  
+            success: false,  
             message: 'Error deleting vendor profile',
             error: error.message
         });
@@ -281,18 +267,18 @@ const getVendorsByCategory = async (req, res) => {
 
             });
         }
-        // send response
         res.status(200).json({
-            success: true, category,
+            success: true,
+            category,
             count: vendors.length,
-            toayl: total,
+            total: total,
             page: parseInt(page),
             pages: Math.ceil(total / limit),
             data: vendors
         });
     } catch (error) {
         res.status(500).json({
-            sucess: false,
+            success: false,
             message: 'Error fetching vendors by category',
             error: error.message
         });

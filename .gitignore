@@ -2,9 +2,7 @@
 /node_modules
 
 # Environment Variables and Secrets
-.env
-.env.*
-.env.local
+.env*
 
 # Build/Dist folders (if applicable)
 /dist
