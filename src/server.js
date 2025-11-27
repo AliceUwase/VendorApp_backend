@@ -26,7 +26,7 @@ if (!port) {
 app.use(cors({
   origin: [
     'http://localhost:3000',
-    'https://vendorapp-frontend.netlify.app/'
+    'https://vendorapp-frontend.netlify.app'
         
   ],
   credentials: true,                    
